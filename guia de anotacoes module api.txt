@@ -1,0 +1,330 @@
+guia de anotacoes module api
+
+npm init -y
+
+npm (node package manager) é o pacote gerenciador padrao do node. sempre que é instalado o node na maquina, o npm vem junto com o programa
+
+após isso, para criar a nossa API, é necessario instalar com o npm o express para lidar com requiscoes feitas pelo cliente e as responses. de que forma? npm install express --save. isso deve ser feito no terminal da aplicacao obviamente e entao o node_modules serao instalados e poderemos utilizar das demais funcoes deste arquivo.
+
+posso ignorar o node_modules com o .gitignore pq é uma pasta que é utilizada mais para o desenvolvimento da aplicacao.
+não é tao necessaria para ser levada ao github por exemplo, entao pode ser ignorada
+-.gitignore é uma boa pratica.
+
+-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*--**-*-*-*-*-*-*-*-*-*-*-*-*-*-*--**-*-*-*-*-*-*-*-*-*-*-*-*-*-*--**-*-*-*-*-*-*-*-*-*-*
+para inicializar um servidor eu preciso fazer o app que recebeu o node_modules escutar na porta que eu passar, e quando for acessada, vai executar a funcao, ou seja, quando o servidor for iniciado, ele vai executar a funcao que eu passar como segundo argumento
+
+const express = require("express")/*aqui estou atribuindo a uma var express o arquivo inteiro do express*/
+
+const app = express() /*to criando uma variavel que vai receber as funcoes presentes dentro do express nesta linha*/
+
+const PORT = 3333; 
+
+esta é a porta onde a minha API vai esperar as requisições para observar e tratar as responsas consequentes das resquisicoes
+
+app.listen(PORT, ()=> console.log(`A porra ta rodando na PORT: ${PORT}`))
+
+/*******************************************************************************************************************/
+acima nós temos a estrutura base para a criacao de um servidor node.js
+para executar um servidor node atraves do terminal 
+
+node src/server.js --> passo o caminho onde o meu server js está localizado
+para reduzir este codigo
+
+posso ir no package.json e alterar um script para automatizar tarefas. logo altero o start, colocando o'node <caminho>
+para que ao executar o npm start eu possa ver a execucao do script passado no arquivo package.json e entao o server
+rodando bem
+/*************************/*************************/*************************/*************************
+rota == caminho, endereço
+Rotas para trabalhar com requisicoes, os query params ou os 
+Rotas sao caminhos entre um ponto A e B. ou seja levar algo que está presente no meu site ou no cliente para o server
+e la fazer verificaçoes, visualizar dados, atualizar, adicionar, deletar
+A rota é o endereço do servidor, onde ele está HOSPEDADO, onde a API está hospedada
+
+/**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**/
+
+para que minha API saiba oq fazer, ela precisa ser utilizada com os Métodos de requisições
+sendo eles :
+GET :leitura de dados (ver detalhes de um produto)
+POST:criação (criar um novo produto)
+PUT:Atualização (atualizar um valor, quantidade disponivel de um produto)
+DELETE:deleção (deletar algum produto)
+PATCH : atualização parcial (atualizacao especifica, como o nome, imagem)
+
+/*****************************************************//*****************************************************/
+
+implementacao do metodo get
+
+a utilização do express faz com que eu possa utilizar destas funcoes no meu app, que é a minha API.
+conseguindo passar como metodo para este objeto os metodos HTTP get ou post por exemplo
+
+posso retornar uma resposta para quem faz a solicitacao com o response. posso capturar dados da url com o route params. logo passando o 
+const <{nome do param}> = request.params
+
+app.get('/', function(request,response)=>{
+	response.send("mensagem") /*estou enviando uma resposta atraves de uma solicitacao da pagina web*/
+})
+
+a resposta so é realizada se alguem solicitar na porta 3333, logo eu preciso passar o get no caso acima para que eu tenha uma mensagem sendo retornada para a pagina 
+
+
+o express identifica dentro de uma route que um parametro esta sendo passado quando se coloca ':' apos a barra e se declara o nome da variavel que vai entrar e vai ser recebida dentro da funcao
+
+app.get('/card/:value', function(request, response)=>{
+	const value = request.param.value
+	response.send(`a resposta presente no route param é ${value}`)
+})
+
+o nome que eu pego desestruturando o objeto que guarda os route params deve ser o mesmo que está la dentro pois ele busca por referencia a porra
+
+relembrando que app é apenas o nome da variavel que vai receber os elementos presentes dentro do express. entao eu vou referenciá-la desta forma com os futuros app.get ou usersRoutes.get caso usersRoutes tenha em algum momento recebido as funcoes de dentro do express
+
+geralmente os route params sao usados para dados simples, um id de um produto por exemplo 
+
+/***************************************//***************************************/
+outra estrategia para capturar dados mediante um endereço, mediante uma route.
+
+o QUERY PARAMS
+/USER/?PAGE=3limit=2
+ja estes, diferentemente do rout params, nao sao obrigatorios a serem passados no url, no route, no endereco
+
+ja no caso da request.body, ou seja, posso pegar informacoes de dentro do corpo da requisicao
+
+para que eu consiga mostrar os dados advindos da route, preciso mostrar pro express que minha aplicacao vai se utilizar do json, ou seja --> app.use(express.json()) preciso passar este metodo que vai converter os dados advindos do corpo da requisição para o JSON
+posso enviar informacoes usando o response.json({object}) desta forma ele nao vai converter em uma especie de html para ser visualizado la no insomnia <3
+
+
+separando responsabilidades utilizando do require...
+joguei as minhas rotas para uma pasta chamada users.routes.js fazendo com que eu pudesse resgatar as rotas la de dentro e fazer com que meu app se utilize destas rotas passando um app.use(usersRoutes), porem anteriormente eu fiz com que uma variavel dentro do meu arquivo server.js resgatasse esta variavel la de dentro que possuia todas estas rotas no arquivo users.routes.js
+
+
+/**************************/**********************************
+
+CONTROLLERS --> parte inteligente, camada responsavel por processar as requisicoes, validar dados, regras de negocio da empresa.
+
+naturalmente um controller possui ate 5 funcoes dentro do seu arquivo (seguindo um padrao de aplicacoes profissionais)
+
+funcao de index --> Metodo GET para listar varios registros por exemplo
+
+funcao de show -- >metodo GET para exibir um registro especifico
+
+funcao de create --> metodo POST para poder criar um registro
+
+funcao de update --> metodo PUT para atualizar um registro
+
+funcao de delete --> metoro DELETE para remover um registro
+
+/*OU SEJA, ENTRAMOS NA AREA QUE VAI CONTROLAR O CRUD DA NOSSA APLICAÇÃO*/
+
+/*ANTERIORMENTE EU ESTAVA PROCESSANDO OS DADOS NA MINHA ROTA, POREM É O CONTROLLER QUE TEM QUE FAZER ISTO, EU ESTAVA PEGANDO O ROUTE PARAMS OU O QUERY PARAMS E PROCESSANDO DENTRO DA MINHA FUNCAO DA ROTA*/
+
+como visto, posso tambem passar a funcao presente dentro do arquivo responsavel, logo, o usercontroller, na funcao que vai trabalhar na rota para separar as obrigaçõoes de cada elemento no meu backend
+
+para fazer os meus dados serem lidos em json, eu precisei passar o usersRouts.use(express.json()), pois as rotas que retornam o response, ainda sao as funcoes das rotas que fazem isso, logo elas precisam se utilizar do express.json()
+
+/******************************************************//*********************************************************/
+HTTP codes or STATUS CODE
+
+adiciona uma numeração na resposta que vai identificar a situação doq aquela requisição retornou, por exemplo : 201 como sendo algo que foi creeated (criado).
+
+existem alguns codigos que vao nos dizer a situação em que se encontra aquela requisição -->
+
+1xx (100) informativo - a solicitacao foi aceita ou o processamento continua em andamento, esta em conclusao ainda
+	102 --> processando
+2xx (200) sucesso -- > requisição bem sucedida
+	201 --> criado -geralmente utilizado para o POST após uma inserção
+3xx (300) redirecionamento --> 
+	301 --> movido permanentemente.
+	302 --> movido
+4xx (400) bad request --> o servidor nao pode ou nao ira processar a solicitacao devido a algo que é percebido
+	401 --> unathorized --> a resposta significa unauthenticated ou seja, o cliente deve autenticar
+	402 --> payment required
+	403 --> forbidden --> o cliente nao tem direitos de acesso ao conteudo, ou seja, nao é autorizado, diferente 		401 o cliente é reconhecido pelo servidor, porem, neste caso ele ja nao tem acesso por outros 			motivos
+	404 --> not found --> o servidor nao pode encontrar o recurso solicitado, ou rota.
+
+/******************************************************//*********************************************************/
+
+MIDDLEWARE --> é uma funcao que tem como objetivo interceptar a requisição para poder validar os dados que estao tentanto ser passados, por exemplo, ela vai estar no caminho entre a requisição e a definitiva criacao de algo e inserção deste algo na base de dados
+
+ele vai trabalhar fazendo validações e apos ele pode querer chamar a proxima funcao a ser executada quando ele for finalizado. usando o next(<funcao aqui >)
+
+o next apenas vai me dizer se aquele processo vai continuar, ou seja, se aproxima (a que vem em seguida ao middleware)funcao que aparece na route vai ser executada devido a algo que possa estar acontecendo no corpo da requisição, uma forma de validar dados, um segurança como no exemplo
+
+/******************************************************//*********************************************************/
+
+tratamento de exceções, tratamento de erros --:> arquivo: appError dentro da pasta UTILS
+
+class AppError { 
+    message;
+    statusCode;
+
+    constructor(message, statusCode = 400){
+
+    }
+}
+o status code caso nao queira ser informado para a atualização do codigo de status, ele vai ficar como sendo o 400 error do client -badrequest
+
+para fazer o tratamento de erros no meu programa eu precisarei utilizar do express-async-errors
+--> eu fiz questao de passar a linha de codigo que lanca uma nova instancia do meu AppError logo mesmo dentro middleware pois é nele que eu faco as verificacoes, entao se foi a falta do nome do usuario, ele vai lancar o appError passando no constructor a mensagem de que falta o nome de usuario. entao o meu error do express-async-errors vai captar isto e vai retornar como uma resposta à minha route o status do error como sendo o error.statusCode que foi o que eu coloquei como sendo erro do lado do cliente e a minha mensagem instanciada no appError anteriormente. caso nao seja este o erro, ele vai aceitar como sendo um erro da parte do servidor. entao ele vai lancar a mensagem no outro return, oq comprova mais uma vez que se trata de uma funcao assincrona, ou seja, que está rodando o tempo inteiro apenas para perceber os possiveis erros da aplicação.
+
+no meu terminal eu preciso utilizar da 'npm install express-async-errors --save' para adicionar nas minhas dependencias do package.json para codar e identificar os possiveis erros que podem aparecer na minha aplicação
+
+
+require('express-async-errors')
+//aqui eu trago para o meu codigo esta biblioteca para usar no meu app
+
+
+//abaixo faço a minha API utilizar do error presente no express-async-errors para lancar erros
+app.use((error, request, response, next)=>{
+    if(error instanceof AppError){
+        return response.status(error.statusCode).json({
+            status : "error",
+            message : error.message
+        })
+    }
+    console.error(error)
+    return response.status(500).json({
+        status : "500",
+        message : "internal server error"
+    })
+})
+
+
+
+
+
+SECAO DE ESTUDOS BANCO DE DADOS --> SQLITE --> SQLITE3 // CONEXOES, POST, DELET, GET, PUT 
+
+
+DENTRO DA LINGUAGEM SQL EXISTEM GRUPOS DE COMANDOS...
+
+sao eles os comandos ddl (data definition language) --> create, drop, alter
+grupos de comandos que definem dados dentro da linguagem
+
+sendo o banco de dados RELACIONAL, eu poderei utilizar dos conhecimentos que ja possuo para trabalhar em cima de outros bancos como o postgres ou o mariadb, ou o mysql etc
+POIS O PADRAO É A LINGUAGEM SQL EM BANCO DE DADOS RELACIONAIS
+
+
+
+comandos do sql
+
+CREATE TABLE <nome da table>(
+	propiedade tipo primary key autoincrement,
+
+(varchar, integer, timestamp default current_timestamp)
+)
+
+ALTER TABLE nome da table
+RENAME TO  table name
+
+ou posso tambem adicionar uma coluna nova na tabela
+
+ALTER TABLE table name
+ADD <nome da nova coluna> <tipo> <timstamp por exemplo> not null talvez
+
+ou posso tambem mudar o nome de alguma coluna dentro da tabela
+
+ALTER TABLE table name 
+RENAME  column <nome da coluna da table> TO <NEW NAME>
+
+para deletar uma coluna presente dentro de uma table eu preciso tambem acessar a tabela ou seja, 
+
+usar do comanddo ALTER TABLE <nome da table  em questao que vai ser alterada, mudanca de nome, nome da coluna ou ate mesmo a exclusao de alguma coluna dentro da table>
+
+ALTER TABLE NEW NAME 
+DROP COLUMN <coluna que vai ser excluida de dentro da table NEW TABLE>
+
+
+..............................................................
+
+
+comandos para insercao e select para visualizaar dados dentro da tabela.
+para pegar dados dentro da tabala eu preciso fazer o await database.get para ver
+e para inserir, eh await database.run NAO POST
+
+await database.run('INSERT INTO users2 (name, cpf, email) VALUES (?, ?, ?)',[userName,cpf,email])
+
+para passar valores dentro dessa string que é enviada pro database.db, eu preciso colocar entre parenteses e passar interrogacoes seguidas de virgulas a ultima n pode ter um virgula ao final. e dps passo uma VIRGULA E UM VETOR COM OS DADOS QUE ENTRARÃO NO CADASTRO LA NO MEU DATABASE.
+esses dados eu pego do corpo da requisição, de la dos inputs, pego estes dados objeto json e envio atraves de uma route create e entao sao feitas verificacoes extremamente importantes como se o email ja foi cadastrado. ou o nome de usuario e pra isso eu tenho que fazer um select. um await database.get('SELECT email from users1 WHERE email = (?)',[<nome da variavel que está presente no corpo da requisicao e que é buscada atraves do request.body>])
+
+
+VOU ME UTILIZAR DE UM QUERY BUILDER PARA CRIAR AS INSTRUCOES PRO SQL ATRAVES DO JAVASCRIPT DE FORMA GLOBAL, OU SEJA, TRABALHANDO EM CIMA DOS BANCOS DE DADOS RELACIONAIS DE MANEIRA UNIVERSAL, CASO ALGUM TENHA UMA FORMA DE ESCREVER DE UM JEITO DIFERENTE, EU POSSO APENAS ESCREVER DE UM UNICO JEITO QUE O MEU QUERY BUILDER VAI SOLUCIONAR, O KNEX.JS --> NPM INSTALL KNEX --SAVE
+
+.....................................................................................
+
+diferencas entre o npm e o npx dentro das aplicacoes backend
+
+o npm eh o node pakage manager ou seja, se utiliza dele para a instalacao de bibliotecas dentro do meu arquivo de criacao de um software, ele vai ter toda a parte da gestao de scripts dentro do meu package.json onde eu tenho o npm start ou os npm run e tudo mais
+
+por outro lado nós temos o npx que significa node package execute que por outro lado é o executador de pacotes npm, podendo executar qualquer pacote npm mesmo nem tendo instalado o no arquivo
+
+
+npm é uma ferramenta que usamos para intalar pacotes
+
+npx eh uma ferramenta que usamos para executar pacotes
+
+.....................................................................................
+
+quando eu instalei o knex no meu arquivo da api usando o npm install knex --save
+
+ele criou o arquivo knexfile.js para mim, trazendo um export de um objeto
+
+onde eu preciso passar dentro do filname : o path.resolve para mostrar aonde se encontra o meu arquivo migrations para trabalhar com automacao da criacao das minhas tabelas de forma que em qualquer banco de dados relacional elas consigam ser lidas, executadas, aprovadas. entao em seguida eu passei o migrations soq dessa vez, o diretorio onde sera criado a minha tabela passando o npx knex migrate:make createNotes ou qualquer nome do arquivo knex
+
+
+assim que criado ele tem o exports.up q esta sempre relacionado ao fato de fazer atualizacoes, criar tabelas e o exports.down que tem relacao em deletar, fazer o drop da table da entity
+
+
+exports.up = knex => knex.schema.createTable("notes", table => {
+    table.increments("id");
+    table.text('tittle');
+    table.text("description");
+    table.integer("users_id").references("id").inTable("users2")
+    table.timestamp("created_at").default(knex.fn.now())
+    table.timestamp("updated_at").default(knex.fn.now())
+})
+
+exports.down = knex => knex.schema.dropTable("notes")
+
+chave estrangeira eh uma chave que eh gerada de dentro de outra tabela, ou seja, eh criada fora dela
+
+
+a chave estrangeira tem a funcao de ligar tabelas, ou seja a foreign key tem a responsabilidade de ligar uma ordem de servico a um id de um cliente por exemplo
+
+é como se ao criar uma ordem de serviço, tivesse que passar tambem o id do cliente que é o requisitador daquele serviço, e entao na tabela 'Ordens de servico' haveria um registro que possuiria um id do cliente responsavel, logo, tendo a possibilidade de ter mais de uma ordem de servico registrada para este cliente, cada uma dastas ordens de servico teria o mesmo id do cliente
+
+o objetivo da chave primaria (priamry key) é garantir que aquele registro possuirá um identificador unico, ou seja, ele sera o unico registro com aquela numeracao em todo o sistema, o sql me garante isso, ja a chave estrangeira existe para relacionar um registro dentro de uma tabela a outro registro dentro de outra, uma forma de linkar..
+
+cardinalidade presente nos databases
+
+/*
+* agora eu vou tentar criar sozinho uma migration dentro do meu arquivo sem antes assistir
+*/
+
+/**
+         * await knex(<ele entra na tabela>).insert({
+         *     aqui dentro eu passo o objeto dentro do javascript q possua o mesmo nome
+         *     dentro do banco de dados, ou seja, oq eu pego da requisicao, do corpo dela
+         *     eu preciso que possua o mesmo nome da coluna dentro da tabela q o knex está 
+         *     estabelecendo conexao no momento, neste momento eu preciso estabelecer onde é
+         *     que a informacao vai entrar, em qual registro, pra isso, preciso adicionar o 
+         *     where({<o nome da coluna : recebendo um valor>}) por exemplo o id sendo passado
+         *     pelo reques.params e ai eu procuro na tabela o registro que for possuidor do id
+         * })
+         */
+
+ele retorna pra mim todas as notas quando entra com o knex("notes") porem ele so vai trazer pra mim as que eu quiser usando do id do usuario que vai ser passado, logo, listando as notas daquele usuario em especifico.
+
+.where(< passo aqui o que eu quero filtrar dentro da tabela especifica que eu passei anteriormente la no knex("table name"), por id de user, ou por qualquer valor que possua qualquer coluna dentro do database, esse valor pode passado por query params ou route params ou numa pesquisa dentro de um input como uma informacao presente no corpo da requisicao>)
+.whereLike("nome do campo, coluna", `%${variavel contendo o conteudo que foi pesquisado}%`)
+
+as porcentagens servem pra indicar é pro meu knex procurar o que vier tanto antes quanto depois do que foi escrito
+
+
+
+
+
+
+
+
+
+
