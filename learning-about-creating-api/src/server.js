@@ -22,7 +22,7 @@ app.use(tagsRoutes)
 
 app.use('/files', express.static( uploadConfigs.UPLOADS_FOLDER ))
 
-const PORT = process.env.SERVER_PORT || 3333;
+const PORT = process.env.SERVER_PORT || 3000;
 
 app.use(express.json())
 
