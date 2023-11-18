@@ -63,8 +63,7 @@ class UserController {
         const database = await sqliteConection()
         const userExists = await database.get('SELECT email FROM users2 WHERE email = (?)',[email])
         if(userExists){
-            res.status(401).send('email ja cadastrado no banco de dados')
-            return
+            throw new AppError('E-mail ja utilizado na aplicação.')
             /*throw ErrorInApp*/  
         } 
         await database.run('INSERT INTO users2 (name, password, email) VALUES (?, ?, ?)',[userName,hashedPassoword,email])
