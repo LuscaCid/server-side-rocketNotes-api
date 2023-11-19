@@ -24,7 +24,7 @@ app.use('/files', express.static( uploadConfigs.UPLOADS_FOLDER ))
 
 const PORT = process.env.SERVER_PORT || 3000;
 
-app.use(express.json())
+app.use(express.json()) 
 
 app.use((error, request, response, next)=>{
     if(error instanceof AppError){
