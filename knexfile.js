@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
 
   development: {
-    client: 'sqlite3',
+    client: 'pg',
     connection: {
       filename: path.resolve(__dirname, "learning-about-creating-api", "src", "database", "database.db")
     },
